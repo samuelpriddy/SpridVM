@@ -26,7 +26,7 @@ enum REGISTERS {
 
 class SpridVM {
 	uint8_t memory[0x1000];//Allocate 4096 bytes for memory
-	uint8_t regs[0x10]; //Allocate 9 bytes for registers
+	uint8_t regs[0x10]; //Allocate 10 bytes for registers
 
 	public:
 		SpridVM() {
@@ -44,26 +44,30 @@ class SpridVM {
 	private:
 		int printOp(uint16_t inst) {
 			uint8_t reg = (inst >> 10) & 0b111;
-			cout << regs[reg];
+			cout << static_cast<int>(regs[reg]) << '\n';
 			return 0;
 		}
 
 		int loadOp(uint16_t inst) {
-			uint8_t reg = (inst >> 10) & 0b111;
-			uint8_t val = inst & 0b11111111;
+			uint16_t instCopy = inst;
+			int val = instCopy & 0b11111111;
+			int reg = (instCopy >> 10) & 0b111;
 			regs[reg] = val;
 			return 0;
 		}
 
 		//Returns the opcode of the given instruction
-		uint8_t findOpcode(uint16_t inst) {return (inst >> 13) & 0b111;} 
+		uint8_t findOpcode(uint16_t inst) {
+			uint16_t instCopy = inst;
+			return (instCopy >> 13) & 0b111;
+		} 
 };
 
 int main() {
-	uint16_t instructions[] = { 0b0010000000000010, 0b0000000000000000 };
+	uint16_t instructions[] = { 0b0010010000000110, 0b0000010000000000 };
 
 	SpridVM vm;
-	for (int i = 0; i < sizeof(instructions); i++) {
+	for (int i = 0; i < sizeof(instructions)/sizeof(uint16_t); i++) {
 		vm.execute(instructions[i]);
 	}
 };
